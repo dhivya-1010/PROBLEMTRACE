@@ -1,69 +1,105 @@
-import Image from "next/image";
+"use client";
+
+import { useMemo, useState } from "react";
+import {
+  ArrowRight, Bell, BookOpen, Check, ChevronDown, CircleDot,
+  FileCheck2, Filter, FlaskConical, GitBranch, LayoutDashboard,
+  Menu, MessageSquare, MoreHorizontal, Network, Plus, Search,
+  Settings, ShieldCheck, Sparkles, Target, Users, X, Zap
+} from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  Background, Controls, Edge, MiniMap, Node, ReactFlow, useEdgesState, useNodesState
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+
+const problems = [
+  { title: "Low-cost thermal storage for off-grid clinics", domain: "Energy · Healthcare", status: "Open", match: "94%", desc: "Design a passive system that preserves vaccines for 72 hours in high-heat environments." },
+  { title: "Predictive maintenance for tidal turbines", domain: "Marine · Infrastructure", status: "In review", match: "82%", desc: "Detect component fatigue before failure without adding sensors to the submerged assembly." },
+  { title: "Waterless cleaning for semiconductor wafers", domain: "Manufacturing · Chemistry", status: "Open", match: "76%", desc: "Remove organic residue at scale while reducing process water by at least 90%." },
+  { title: "Biodegradable barrier for fresh produce", domain: "Materials · Food systems", status: "Solved", match: "68%", desc: "Extend shelf life without PFAS, microplastics, or cold-chain dependency." },
+];
+
+const chartData = [
+  { month: "Jun", contributions: 18 }, { month: "Jul", contributions: 26 },
+  { month: "Aug", contributions: 21 }, { month: "Sep", contributions: 34 },
+  { month: "Oct", contributions: 42 }, { month: "Nov", contributions: 51 },
+];
+
+const lineageNodes: Node[] = [
+  { id: "p", position: { x: 20, y: 170 }, data: { label: "Original problem\nThermal storage" }, style: { background: "#0f2747", color: "white", borderRadius: 12, padding: 14, width: 180, border: "1px solid #214873" } },
+  { id: "s1", position: { x: 280, y: 80 }, data: { label: "Historical solution\nPhase-change pack" }, style: { background: "#eaf7f5", color: "#0f2747", borderRadius: 12, padding: 14, width: 180, border: "1px solid #a9ddd5" } },
+  { id: "s2", position: { x: 280, y: 260 }, data: { label: "Failed branch\nActive cooling" }, style: { background: "#fff2f0", color: "#8b302a", borderRadius: 12, padding: 14, width: 180, border: "1px solid #f0c2ba" } },
+  { id: "a", position: { x: 550, y: 80 }, data: { label: "Adaptation event\nLocal materials" }, style: { background: "#f5f7fb", color: "#0f2747", borderRadius: 12, padding: 14, width: 180, border: "1px solid #cbd6e5" } },
+  { id: "v", position: { x: 820, y: 80 }, data: { label: "Validated outcome\n72-hour stability" }, style: { background: "#e9f8ef", color: "#14643c", borderRadius: 12, padding: 14, width: 180, border: "1px solid #b5e3c7" } },
+];
+const lineageEdges: Edge[] = [
+  { id: "e1", source: "p", target: "s1", animated: true }, { id: "e2", source: "p", target: "s2" },
+  { id: "e3", source: "s1", target: "a", animated: true }, { id: "e4", source: "a", target: "v", animated: true },
+];
+
+function Logo() {
+  return <div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[#0f2747] text-white"><Network size={17} /></div><span className="text-[15px] font-bold tracking-[0.18em] text-[#0f2747]">PROBLEMTRACE</span></div>;
+}
+
+function Badge({ children, tone = "blue" }: { children: React.ReactNode; tone?: "blue"|"green"|"amber"|"red" }) {
+  const styles = { blue: "bg-[#edf4ff] text-[#2459a6]", green: "bg-[#eaf8ef] text-[#187247]", amber: "bg-[#fff8e6] text-[#8a641c]", red: "bg-[#fff0ee] text-[#a54134]" };
+  return <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${styles[tone]}`}>{children}</span>;
+}
+
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-2xl border border-[#dfe7f0] bg-white shadow-[0_8px_24px_rgba(15,39,71,0.04)] ${className}`}>{children}</div>;
+}
+
+function AppShell({ active, setActive, children }: { active: string; setActive: (v: string) => void; children: React.ReactNode }) {
+  const items = [["dashboard", LayoutDashboard, "Overview"], ["problems", Target, "Problem explorer"], ["cdev", FlaskConical, "CDEV analysis"], ["solutions", GitBranch, "Solution lineage"], ["projects", Users, "Project rooms"], ["evidence", FileCheck2, "Evidence validation"], ["showcase", BookOpen, "Public showcase"]];
+  return <div className="min-h-screen bg-[#f7f9fc] text-[#142b49]">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[248px] border-r border-[#e4eaf1] bg-white px-5 py-6 lg:block">
+      <Logo />
+      <div className="mt-10 space-y-1">{items.map(([id, Icon, label]) => <button key={id as string} onClick={() => setActive(id as string)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition ${active === id ? "bg-[#eaf2fb] text-[#1d5e9f]" : "text-[#64748b] hover:bg-[#f4f7fb]"}`}><Icon size={17} />{label as string}</button>)}</div>
+      <div className="mt-10 border-t border-[#edf0f4] pt-5"><p className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9aa8b8]">Workspace</p><button onClick={() => setActive("profile")} className="mt-3 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] text-[#64748b] hover:bg-[#f4f7fb]"><Settings size={17} />Profile & settings</button><button onClick={() => setActive("admin")} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] text-[#64748b] hover:bg-[#f4f7fb]"><ShieldCheck size={17} />Admin console</button></div>
+      <div className="absolute bottom-6 left-5 right-5 rounded-2xl bg-[#eff8f7] p-4"><div className="flex items-center gap-2 text-[#136d69]"><Sparkles size={16}/><span className="text-xs font-bold">Demo workspace</span></div><p className="mt-2 text-[11px] leading-5 text-[#56807d]">Synthetic records are clearly labelled for your review.</p></div>
+    </aside>
+    <div className="lg:pl-[248px]"><header className="sticky top-0 z-20 flex h-[72px] items-center justify-between border-b border-[#e4eaf1] bg-white/95 px-5 backdrop-blur lg:px-9"><button className="lg:hidden"><Menu size={20}/></button><div className="hidden text-sm font-medium text-[#718096] lg:block">{active === "dashboard" ? "Good morning, Dr. Chen" : active[0].toUpperCase()+active.slice(1)}</div><div className="flex items-center gap-4"><button className="relative text-[#708197]"><Bell size={18}/><span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#1da89f]"/></button><div className="flex items-center gap-2 border-l border-[#e8edf2] pl-4"><div className="grid h-8 w-8 place-items-center rounded-full bg-[#dcecf2] text-xs font-bold text-[#0f6471]">MC</div><span className="hidden text-xs font-semibold text-[#334155] sm:block">Maya Chen</span><ChevronDown size={14} className="text-[#96a2b1]"/></div></div></header><main className="mx-auto max-w-[1440px] p-5 lg:p-9">{children}</main></div>
+  </div>;
+}
+
+function Dashboard({ setActive }: { setActive: (v: string) => void }) {
+  return <><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b9a91]">Tuesday, November 8, 2026</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#0f2747]">Your research workspace</h1><p className="mt-2 text-sm text-[#718096]">A clear view of the problems, evidence, and people moving your work forward.</p></div><button onClick={() => setActive("problems")} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0f2747] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0f2747]/10 hover:bg-[#17385f]"><Plus size={16}/> Submit a problem</button></div>
+    <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[["12","Problems submitted","↑ 18% this month",Target,"text-[#2572b8]"],["07","Active projects","3 due this week",Zap,"text-[#148c82]"],["19","Evidence validated","↑ 6 this month",Check,"text-[#715bd1]"],["86","Contribution score","Top 8% globally",Sparkles,"text-[#c27b2d]"]].map(([value,label,meta,Icon,color]) => { const StatIcon = Icon as React.ComponentType<{size?: number}>; return <Card key={label as string} className="p-5"><div className="flex items-start justify-between"><div><p className="text-3xl font-semibold text-[#0f2747]">{value as string}</p><p className="mt-1 text-xs font-medium text-[#66768b]">{label as string}</p></div><div className={`grid h-9 w-9 place-items-center rounded-xl bg-[#f5f8fc] ${color as string}`}><StatIcon size={18}/></div></div><p className="mt-4 text-[11px] font-medium text-[#1b9a91]">{meta as string}</p></Card>})}</div>
+    <div className="mt-6 grid gap-6 xl:grid-cols-[1.45fr_1fr]"><Card className="p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#0f2747]">Contribution overview</h2><p className="mt-1 text-xs text-[#8290a1]">Validated contributions across your workspace</p></div><button className="flex items-center gap-1 text-xs font-semibold text-[#3972a9]">Last 6 months <ChevronDown size={13}/></button></div><div className="mt-5 h-[220px]"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData}><defs><linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#39aaa0" stopOpacity={0.28}/><stop offset="100%" stopColor="#39aaa0" stopOpacity={0}/></linearGradient></defs><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize:11, fill:"#92a0b0"}}/><YAxis hide/><Tooltip contentStyle={{borderRadius:12,border:"1px solid #dfe7f0",fontSize:12}}/><Area type="monotone" dataKey="contributions" stroke="#1b9a91" strokeWidth={2.5} fill="url(#fill)"/></AreaChart></ResponsiveContainer></div></Card><Card className="p-6"><div className="flex items-center justify-between"><h2 className="font-semibold text-[#0f2747]">Recent activity</h2><button className="text-xs font-semibold text-[#3972a9]">View all</button></div><div className="mt-4 space-y-4">{[["You validated a proof obligation","Thermal storage · 12 min ago","text-[#1b9a91]",Check],["Alex Rivera joined your project","Tidal turbine maintenance · 2h ago","text-[#6b5ad1]",Users],["New solution branch created","Produce barrier · Yesterday","text-[#bf7c2d]",GitBranch]].map(([title,meta,color,Icon]) => { const ActivityIcon = Icon as React.ComponentType<{size?: number}>; return <div key={title as string} className="flex gap-3"><div className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f2f6fa] ${color}`}><ActivityIcon size={14}/></div><div><p className="text-xs font-semibold text-[#334155]">{title as string}</p><p className="mt-1 text-[11px] text-[#8b98a8]">{meta as string}</p></div></div>})}</div></Card></div>
+    <div className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_1fr]"><Card className="p-6"><div className="flex items-center justify-between"><div><h2 className="font-semibold text-[#0f2747]">My active problems</h2><p className="mt-1 text-xs text-[#8290a1]">Keep the momentum going</p></div><button onClick={() => setActive("problems")} className="text-xs font-semibold text-[#3972a9]">Explore all →</button></div><div className="mt-4 space-y-3">{problems.slice(0,3).map((p,i)=><div key={p.title} className="flex items-center justify-between rounded-xl border border-[#edf1f5] p-3"><div className="flex items-center gap-3"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[#eef5fb] text-xs font-bold text-[#3d79ae]">0{i+1}</div><div><p className="text-xs font-semibold text-[#334155]">{p.title}</p><p className="mt-1 text-[11px] text-[#8b98a8]">{p.domain}</p></div></div><Badge tone={i===1?"amber":"green"}>{i===1?"In review":"Active"}</Badge></div>)}</div></Card><Card className="bg-[#0f2747] p-6 text-white"><div className="flex items-center gap-2 text-[#7de0d4]"><Sparkles size={16}/><span className="text-xs font-semibold uppercase tracking-wider">CDEV signal</span></div><h2 className="mt-4 text-xl font-semibold leading-7">A historical solution may fit your newest problem.</h2><p className="mt-2 text-sm leading-6 text-[#b8cce0]">Phase-change packaging from 2019 shares 7 of 9 constraints with your thermal storage brief.</p><button onClick={() => setActive("cdev")} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2.5 text-xs font-bold text-[#0f2747]">Review analysis <ArrowRight size={14}/></button></Card></div>
+  </>;
+}
+
+function Problems({ setActive }: { setActive: (v: string) => void }) {
+  const [query, setQuery] = useState(""); const [submitted, setSubmitted] = useState(false);
+  const filtered = useMemo(() => problems.filter(p => p.title.toLowerCase().includes(query.toLowerCase()) || p.domain.toLowerCase().includes(query.toLowerCase())), [query]);
+  return <><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b9a91]">Knowledge commons</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#0f2747]">Problem explorer</h1><p className="mt-2 text-sm text-[#718096]">Find open challenges where your expertise can create a measurable difference.</p></div><button onClick={() => setSubmitted(true)} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0f2747] px-4 py-3 text-sm font-semibold text-white"><Plus size={16}/> Submit a problem</button></div>
+    <Card className="mt-8 flex flex-col gap-3 p-4 md:flex-row"><div className="flex flex-1 items-center gap-3 rounded-xl bg-[#f7f9fc] px-4"><Search size={17} className="text-[#93a0af]"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search problems, domains, or constraints..." className="w-full bg-transparent py-3 text-sm outline-none placeholder:text-[#9aa7b5]"/></div><button className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#dfe7f0] px-4 py-3 text-xs font-semibold text-[#53657a]"><Filter size={15}/> Filters <ChevronDown size={14}/></button></Card>
+    {submitted && <div className="mt-4 flex items-center justify-between rounded-xl border border-[#bfe6dd] bg-[#edf9f7] px-4 py-3 text-xs text-[#146d68]"><span><strong>Demo form ready.</strong> In the full product, this opens a structured problem submission flow.</span><button onClick={()=>setSubmitted(false)}><X size={15}/></button></div>}
+    <div className="mt-6 grid gap-5 lg:grid-cols-2">{filtered.map((p)=><Card key={p.title} className="group cursor-pointer p-6 transition hover:-translate-y-0.5 hover:shadow-lg" ><div className="flex items-start justify-between"><Badge tone={p.status==="Solved"?"green":p.status==="In review"?"amber":"blue"}>{p.status}</Badge><button className="text-[#99a5b3]"><MoreHorizontal size={17}/></button></div><h3 className="mt-5 max-w-[90%] text-lg font-semibold leading-7 text-[#173452]">{p.title}</h3><p className="mt-2 text-sm leading-6 text-[#718096]">{p.desc}</p><div className="mt-5 flex items-center justify-between border-t border-[#eef2f6] pt-4"><span className="text-xs font-medium text-[#8290a1]">{p.domain}</span><span className="flex items-center gap-1.5 text-xs font-bold text-[#1b9a91]"><CircleDot size={13}/> {p.match} constraint match</span></div></Card>)}</div>
+    <Card className="mt-6 flex items-center justify-between bg-[#f1f8f7] p-5"><div><p className="text-sm font-semibold text-[#164b51]">See a problem from the other side?</p><p className="mt-1 text-xs text-[#5d7e82]">Explore public showcases and learn how teams adapted historic solutions.</p></div><button onClick={()=>setActive("showcase")} className="rounded-lg bg-white px-3 py-2 text-xs font-semibold text-[#227f7a] shadow-sm">View showcases →</button></Card>
+  </>;
+}
+
+function Cdev() {
+  const rows = [["Operating temperature", "−10°C to 45°C", "−5°C to 50°C", "Compatible", "green"],["Passive operation", "Required", "Required", "Compatible", "green"],["Target duration", "72 hours", "48 hours", "Gap", "amber"],["Available materials", "Local polymers", "Aluminum PCM", "Adapt", "blue"],["Maintenance cycle", "Annual", "Monthly", "Conflict", "red"]];
+  return <><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b9a91]">Demonstration analysis</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#0f2747]">CDEV analysis</h1><p className="mt-2 max-w-2xl text-sm text-[#718096]">Constraint-driven exploration compares a source solution against a target problem. Results below are synthetic demonstration data.</p></div><div className="mt-8 grid gap-4 md:grid-cols-3"><Card className="p-5"><p className="text-[11px] font-bold uppercase tracking-wider text-[#8694a4]">Source problem</p><p className="mt-3 text-sm font-semibold text-[#173452]">Phase-change packaging for rural vaccines</p><p className="mt-2 text-xs text-[#8290a1]">Published 2019 · Delft Research Lab</p></Card><Card className="border-[#afdcd6] bg-[#f1faf8] p-5"><p className="text-[11px] font-bold uppercase tracking-wider text-[#237e79]">Target problem</p><p className="mt-3 text-sm font-semibold text-[#173452]">Low-cost thermal storage for clinics</p><p className="mt-2 text-xs text-[#62908d]">Submitted by Maya Chen · Demo</p></Card><Card className="bg-[#0f2747] p-5 text-white"><p className="text-[11px] font-bold uppercase tracking-wider text-[#8db8d8]">Compatibility score</p><p className="mt-2 text-4xl font-semibold">78<span className="text-xl text-[#7de0d4]">%</span></p><p className="mt-1 text-xs text-[#b8cce0]">7 of 9 constraints aligned</p></Card></div><Card className="mt-6 overflow-hidden"><div className="flex items-center justify-between border-b border-[#e8edf2] p-6"><div><h2 className="font-semibold text-[#0f2747]">Constraint comparison</h2><p className="mt-1 text-xs text-[#8290a1]">Explicitly labelled demonstration data</p></div><Badge tone="blue">Demo result</Badge></div><div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-[#f8fafc] text-[11px] uppercase tracking-wider text-[#8a98a8]"><tr><th className="px-6 py-3 font-semibold">Constraint</th><th className="px-6 py-3 font-semibold">Source</th><th className="px-6 py-3 font-semibold">Target</th><th className="px-6 py-3 font-semibold">Assessment</th></tr></thead><tbody>{rows.map(([name,source,target,assessment,tone])=><tr key={name} className="border-t border-[#eef2f6]"><td className="px-6 py-4 font-medium text-[#334155]">{name}</td><td className="px-6 py-4 text-[#718096]">{source}</td><td className="px-6 py-4 text-[#718096]">{target}</td><td className="px-6 py-4"><Badge tone={tone as "green"|"amber"|"blue"|"red"}>{assessment}</Badge></td></tr>)}</tbody></table></div></Card><div className="mt-6 grid gap-5 md:grid-cols-3">{[["Proof obligations", "04", "2 ready for evidence"],["Adaptation recommendations","03","1 high confidence"],["Unknown constraints","02","Needs researcher input"]].map(([title,value,meta])=><Card key={title} className="p-5"><div className="flex items-center justify-between"><span className="text-sm font-semibold text-[#334155]">{title}</span><span className="text-2xl font-semibold text-[#0f2747]">{value}</span></div><p className="mt-3 text-xs text-[#8290a1]">{meta}</p></Card>)}</div></>;
+}
+
+function Lineage() {
+  const [nodes, , onNodesChange] = useNodesState(lineageNodes); const [edges, , onEdgesChange] = useEdgesState(lineageEdges);
+  return <><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b9a91]">Evidence graph</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#0f2747]">Solution lineage</h1><p className="mt-2 text-sm text-[#718096]">Trace how an idea moved from first principles to validated adaptation.</p></div><Badge tone="green">3 validated events</Badge></div><Card className="mt-8 overflow-hidden"><div className="flex items-center justify-between border-b border-[#e8edf2] p-5"><div className="flex items-center gap-2"><GitBranch size={16} className="text-[#1b9a91]"/><span className="text-sm font-semibold text-[#334155]">Thermal storage adaptation graph</span></div><span className="text-[11px] text-[#8a98a8]">Click a node to inspect details</span></div><div className="h-[520px]"><ReactFlow nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} fitView><Background color="#e5ebf1" gap={24}/><Controls/><MiniMap nodeColor={(n)=>n.id==="v"?"#64c69a":n.id==="s2"?"#e9a29a":"#7ba8cf"}/></ReactFlow></div></Card></>;
+}
+
+function GenericPage({ type }: { type: string }) {
+  const content: Record<string, {eyebrow:string; title:string; desc:string; icon: typeof Users}> = { projects:{eyebrow:"Collaboration workspace",title:"Project rooms",desc:"Coordinate contributors, milestones, files, and technical discussions in one calm workspace.",icon:Users}, evidence:{eyebrow:"Trust layer",title:"Evidence validation",desc:"Review proof obligations, attach evidence, and keep methodology visible to every collaborator.",icon:FileCheck2}, showcase:{eyebrow:"Open knowledge",title:"Public showcase",desc:"Share the full adaptation journey, from original problem to validated result and limitations.",icon:BookOpen}, profile:{eyebrow:"Your identity",title:"Profile & settings",desc:"Make your skills, interests, and contribution history discoverable to the right collaborators.",icon:Users}, admin:{eyebrow:"Governance",title:"Admin console",desc:"Monitor platform health, moderate problems, and understand activity across the commons.",icon:ShieldCheck} }; const c=content[type] || content.projects; const Icon=c.icon;
+  return <><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1b9a91]">{c.eyebrow}</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#0f2747]">{c.title}</h1><p className="mt-2 max-w-2xl text-sm text-[#718096]">{c.desc}</p></div><div className="mt-8 grid gap-5 lg:grid-cols-[1.6fr_1fr]"><Card className="min-h-[420px] p-7"><div className="flex items-center justify-between border-b border-[#edf1f5] pb-5"><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-[#edf6f6] text-[#1b8c87]"><Icon size={19}/></div><div><h2 className="font-semibold text-[#173452]">{type === "projects" ? "North star project" : "Workspace overview"}</h2><p className="mt-1 text-xs text-[#8290a1]">Synthetic demonstration workspace</p></div></div><button className="rounded-lg border border-[#dfe7f0] px-3 py-2 text-xs font-semibold text-[#53657a]"><MoreHorizontal size={15}/></button></div><div className="mt-6 grid gap-4 sm:grid-cols-3">{["In progress","Needs review","Completed"].map((label,i)=><div key={label} className="rounded-xl bg-[#f8fafc] p-4"><p className="text-[11px] font-semibold text-[#8290a1]">{label}</p><p className="mt-2 text-2xl font-semibold text-[#0f2747]">{[4,2,18][i]}</p></div>)}</div><div className="mt-6 space-y-3">{["Define validation methodology","Upload field test evidence","Review adaptation constraints","Publish technical summary"].map((task,i)=><div key={task} className="flex items-center gap-3 rounded-xl border border-[#edf1f5] p-3"><div className={`grid h-6 w-6 place-items-center rounded-full ${i<2?"bg-[#dff4e8] text-[#208052]":"bg-[#f1f4f8] text-[#8b98a8]"}`}>{i<2?<Check size={13}/>:i+1}</div><span className="text-xs font-medium text-[#526276]">{task}</span><span className="ml-auto text-[11px] text-[#98a4b2]">{i<2?"Done":"Upcoming"}</span></div>)}</div></Card><Card className="bg-[#0f2747] p-7 text-white"><div className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-[#7de0d4]"><MessageSquare size={19}/></div><h2 className="mt-5 text-xl font-semibold">Keep the room moving</h2><p className="mt-2 text-sm leading-6 text-[#b8cce0]">This prototype uses local state for chat, file uploads, status updates, and reviewer comments.</p><button className="mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-bold text-[#0f2747]">Open demo panel <ArrowRight size={14}/></button></Card></div></>;
+}
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+  const [active, setActive] = useState("dashboard");
+  const page = active === "dashboard" ? <Dashboard setActive={setActive}/> : active === "problems" ? <Problems setActive={setActive}/> : active === "cdev" ? <Cdev/> : active === "solutions" ? <Lineage/> : <GenericPage type={active}/>;
+  return <AppShell active={active} setActive={setActive}>{page}</AppShell>;
 }
