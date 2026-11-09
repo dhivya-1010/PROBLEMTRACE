@@ -320,6 +320,233 @@ export const mockPosts: PostItem[] = [
     commentsCount: 44,
     location: "Singapore & Nairobi",
     comments: []
+  },
+  {
+    id: "post-5",
+    author: {
+      name: "Dr. Aris Thorne",
+      handle: "@aris_h2",
+      role: "Electrochemical Systems Fellow",
+      institution: "Imperial Energy Futures",
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+      verified: true
+    },
+    timestamp: "3 hours ago",
+    category: "CleanTech · Hydrogen",
+    status: "Exploring",
+    title: "Zero-Degradation Anion Exchange Membrane for Seawater Electrolyzers",
+    description: "Direct seawater electrolysis creates catastrophic chloride oxidation (hypochlorite pitting) that destroys catalytic anode coatings within 200 operating hours. We are synthesizing a quaternized polysulfone membrane with selective sulfate-anion exclusion. Seeking electrochemists to test 1000h chronopotentiometry traces under industrial current densities.",
+    image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=1000&auto=format&fit=crop&q=80",
+    imageCaption: "Electrochemical impedance spectroscopy (EIS) Nyquist plot of functionalized ionomer under variable saline boundary conditions.",
+    skills: ["#GreenHydrogen", "#MembraneScience", "#Electrocatalysis", "#Chronopotentiometry", "#CleanTech"],
+    constraints: [
+      { label: "Chloride Overpotential", value: "> 480 mV", status: "ok" },
+      { label: "Operating Life", value: "> 5,000 Hours", status: "ok" },
+      { label: "Energy Efficiency", value: "> 74% LHV", status: "warn" },
+      { label: "Noble Metal Load", value: "< 0.1 mg/cm²", status: "ok" }
+    ],
+    cdevMatch: {
+      score: 88,
+      reference: "PEM Fuel Cell Fluoropolymer Barrier (2020)",
+      targetId: "cdev"
+    },
+    likesCount: 174,
+    isLiked: false,
+    isSaved: true,
+    commentsCount: 15,
+    location: "London, UK · Aberdeen Offshore",
+    comments: [
+      {
+        id: "c-h1",
+        author: "Marcus Vance",
+        handle: "@m_vance",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        role: "Thermal Systems Architect @ MIT",
+        text: "The sulfate-anion exclusion mechanism is brilliant. Are you observing any local boundary pH spikes near the cathode interface?",
+        timestamp: "2h ago",
+        likes: 11
+      }
+    ]
+  },
+  {
+    id: "post-6",
+    author: {
+      name: "Dr. Maya Patel",
+      handle: "@mayapatel_md",
+      role: "Clinical Neuroengineer",
+      institution: "Oxford Neuroengineering Labs",
+      avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80",
+      verified: true
+    },
+    timestamp: "6 hours ago",
+    category: "Biomedical · Neurotech",
+    status: "Open",
+    title: "Non-Invasive Intracranial Pressure Monitoring via Transorbital Ultrasound",
+    description: "Current traumatic brain injury (TBI) intracranial pressure (ICP) tracking requires surgical burr-hole skull trephination with an 8% nosocomial infection hazard. We are adapting phased-array acoustic beamforming to monitor optic nerve sheath diameter (ONSD) pulsation passively with 0.1mm acoustic resolution through the closed eyelid.",
+    image: "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=1000&auto=format&fit=crop&q=80",
+    imageCaption: "B-mode transorbital ultrasound sonogram isolating retrobulbar optic nerve sheath pulsation waveforms.",
+    skills: ["#Neurotech", "#AcousticBeamforming", "#BiomedicalOptics", "#ISO14971", "#NonInvasiveICP"],
+    constraints: [
+      { label: "Measurement Drift", value: "< 1.0 mmHg/24h", status: "ok" },
+      { label: "Acoustic Power", value: "< 720 mW/cm² (FDA)", status: "ok" },
+      { label: "Temporal Resolution", value: "> 60 Hz", status: "ok" },
+      { label: "Operator Training", value: "< 15 Mins", status: "warn" }
+    ],
+    cdevMatch: {
+      score: 92,
+      reference: "Ophthalmic Doppler Flow Velocimetry (2016)",
+      targetId: "cdev"
+    },
+    likesCount: 312,
+    isLiked: true,
+    isSaved: false,
+    commentsCount: 38,
+    location: "Oxford, UK · John Radcliffe Hospital",
+    comments: []
+  },
+  {
+    id: "post-7",
+    author: {
+      name: "Dr. Tarek Mansour",
+      handle: "@tarek_solar",
+      role: "Photovoltaic Materials Fellow",
+      institution: "KAUST Clean Energy Research",
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+      verified: true
+    },
+    timestamp: "8 hours ago",
+    category: "Energy Storage · CleanTech",
+    status: "In Validation",
+    title: "Sub-Ambient Passive Radiative Sky Cooling Film for Desert PV Farms",
+    description: "Solar modules installed in hyper-arid desert zones lose 0.45% conversion yield per °C rise above 25°C, frequently sustaining 68°C mid-day operating peaks. We synthesized a micro-porous silica-PDMS polymeric film that emits strongly in the 8-13μm atmospheric window, dropping panel surface temperature by 9.4°C under 1000 W/m² peak desert insolation.",
+    image: "https://images.unsplash.com/photo-1508873696983-2df5293cb325?w=1000&auto=format&fit=crop&q=80",
+    imageCaption: "FTIR hemispherical emissivity spectrum showing 94.6% selective emission inside the sky transparency band.",
+    skills: ["#RadiativeCooling", "#SolarEnergy", "#Microcomposites", "#AtmosphericOptics", "#CleanEnergy"],
+    constraints: [
+      { label: "Sky Window Emissivity", value: "> 0.94", status: "ok" },
+      { label: "Solar Transmittance", value: "> 91%", status: "ok" },
+      { label: "Temperature Drop", value: "-9.4°C Noon", status: "ok" },
+      { label: "Sand Abrasion Durability", value: "> 8 Years", status: "warn" }
+    ],
+    cdevMatch: {
+      score: 85,
+      reference: "Deep-Space Satellite Thermal Radiator (2015)",
+      targetId: "cdev"
+    },
+    likesCount: 265,
+    isLiked: false,
+    isSaved: true,
+    commentsCount: 21,
+    location: "Thuwal, Saudi Arabia",
+    comments: []
+  },
+  {
+    id: "post-8",
+    author: {
+      name: "Capt. Nora Sterling",
+      handle: "@nora_ocean",
+      role: "Autonomous Ocean Systems Lead",
+      institution: "Woods Hole Oceanographic Inst.",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+      verified: true
+    },
+    timestamp: "1 day ago",
+    category: "Marine & Robotics",
+    status: "Open",
+    title: "Acoustic Cavitation Biofouling Defense for Deep Autonomous Gliders",
+    description: "Autonomous underwater gliders deployed on 180-day ocean basin transects accumulate tubeworm and diatom biofilms, penalizing hydrodynamic lift-to-drag ratios by 42%. Toxic cuprous biocides are prohibited in marine preserves. We designed a 28kHz pulsed piezoceramic hull transducer that prevents settlement with under 320mW average electrical consumption.",
+    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1000&auto=format&fit=crop&q=80",
+    imageCaption: "Computational fluid dynamics (CFD) model of glider laminar boundary layer displacement under biofouling drag.",
+    skills: ["#AutonomousGliders", "#AcousticCavitation", "#Piezoelectric", "#MarineRobotics", "#CFD"],
+    constraints: [
+      { label: "Average Power Budget", value: "< 320 mW", status: "ok" },
+      { label: "Depth Rating", value: "> 2,500 Meters", status: "ok" },
+      { label: "Biofilm Prevention", value: "> 95%", status: "ok" },
+      { label: "Acoustic Noise", value: "< 110 dB re 1μPa", status: "ok" }
+    ],
+    cdevMatch: {
+      score: 79,
+      reference: "Ultrasonic Phacoemulsification Transducer (2013)",
+      targetId: "cdev"
+    },
+    likesCount: 198,
+    isLiked: true,
+    isSaved: false,
+    commentsCount: 19,
+    location: "Woods Hole, MA · North Atlantic",
+    comments: []
+  },
+  {
+    id: "post-9",
+    author: {
+      name: "Dr. Felix Hoffmann",
+      handle: "@felix_nano",
+      role: "Interconnect Thermal Architect",
+      institution: "IMEC Nano-Interconnect Center",
+      avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+      verified: true
+    },
+    timestamp: "2 days ago",
+    category: "Semiconductors",
+    status: "In Validation",
+    title: "Phonon Heat Dissipation in Sub-2nm Gate-All-Around Nanosheets",
+    description: "At the 2nm transistor node, phonon acoustic boundary scattering causes localized self-heating hotspots exceeding 125°C in silicon channels, triggering electro-migration breakdown. We adapted atomic layer deposition (ALD) of isotopically pure Boron Arsenide (BAs) films achieving 1,300 W/mK thermal conductivity directly at the gate dielectric interface.",
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1000&auto=format&fit=crop&q=80",
+    imageCaption: "Cross-sectional TEM of stacked nanosheet FET architecture illustrating 3.2nm conformal heat spreader layer.",
+    skills: ["#Semiconductors", "#GateAllAround", "#PhononScattering", "#ALD", "#ThermalDissipation"],
+    constraints: [
+      { label: "Max Channel Temp", value: "< 85°C", status: "ok" },
+      { label: "Film Thickness", value: "< 4.0 nm", status: "ok" },
+      { label: "Gate Parasitic C", value: "< 1.5%", status: "ok" },
+      { label: "Conformal Step Coverage", value: "> 98%", status: "warn" }
+    ],
+    cdevMatch: {
+      score: 83,
+      reference: "Diamond Heat Spreaders for GaN Amplifiers (2017)",
+      targetId: "cdev"
+    },
+    likesCount: 384,
+    isLiked: false,
+    isSaved: true,
+    commentsCount: 32,
+    location: "Leuven, Belgium",
+    comments: []
+  },
+  {
+    id: "post-10",
+    author: {
+      name: "Dr. Amini Ndung'u",
+      handle: "@amini_carbon",
+      role: "Geochemical Ecology Lead",
+      institution: "East African Mineral Commons",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      verified: true
+    },
+    timestamp: "3 days ago",
+    category: "Materials & Ag · CleanTech",
+    status: "Solved",
+    title: "Accelerated Mineral Carbonation of Basalt Dust for Soil Remineralization",
+    description: "Successfully proven across 42 hectares of smallholder maize farms: By milling ultra-mafic nickel and basalt mining tailings to 45μm particle size, soil moisture drives accelerated silicate weathering. Sequestered 0.42 tons of atmospheric CO2 permanently per ton of rock dust applied, while lifting crop yields by 18.6% through bioavailable magnesium and silica.",
+    image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1000&auto=format&fit=crop&q=80",
+    imageCaption: "X-ray powder diffraction (XRD) proof trace documenting stable calcium-magnesium carbonate mineral precipitation.",
+    skills: ["#EnhancedWeathering", "#CarbonRemoval", "#SoilRemineralization", "#XRD", "#Geochemistry"],
+    constraints: [
+      { label: "Permanence Guarantee", value: "> 1,000 Years", status: "ok" },
+      { label: "CO2 Uptake Yield", value: "0.42 t CO2 / t rock", status: "ok" },
+      { label: "Yield Increase", value: "+18.6%", status: "ok" },
+      { label: "Heavy Metal Leaching", value: "0.0 ppm (WHO compliant)", status: "ok" }
+    ],
+    cdevMatch: {
+      score: 96,
+      reference: "Peridotite Carbon Mineralization Kinetics (2019)",
+      targetId: "cdev"
+    },
+    likesCount: 529,
+    isLiked: true,
+    isSaved: true,
+    commentsCount: 61,
+    location: "Nairobi & Rift Valley, Kenya",
+    comments: []
   }
 ];
 

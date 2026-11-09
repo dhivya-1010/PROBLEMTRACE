@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "node build-css.mjs",
+    "predev": "node build-css.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

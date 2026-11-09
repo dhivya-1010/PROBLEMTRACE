@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import "./tailwind.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PROBLEMTRACE — Every Problem Has a History. Every Solution Leaves Evidence.",
+  title: "PROBLEMTRACE - Every Problem Has a History. Every Solution Leaves Evidence.",
   description: "A constraint-driven scientific research and verifiable solution lineage social workspace.",
 };
 

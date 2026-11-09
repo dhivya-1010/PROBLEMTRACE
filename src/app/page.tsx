@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Menu,
   X,
@@ -37,6 +37,7 @@ import { ShowcaseView } from "@/components/showcase/ShowcaseView";
 import { MessagesView } from "@/components/messages/MessagesView";
 import { NotificationsDrawer } from "@/components/notifications/NotificationsDrawer";
 import { AdminView } from "@/components/admin/AdminView";
+import { SettingsView } from "@/components/settings/SettingsView";
 
 function MainApp() {
   const { showToast } = useToast();
@@ -45,6 +46,23 @@ function MainApp() {
   const [activeView, setActiveView] = useState<string>("home");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedExploreTag, setSelectedExploreTag] = useState<string>("");
+
+  // Sidebar expand state (Click-to-expand, click-outside-to-shrink)
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const sidebarContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      if (
+        sidebarContainerRef.current &&
+        !sidebarContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsSidebarExpanded(false);
+      }
+    };
+    document.addEventListener("mousedown", handleGlobalClick);
+    return () => document.removeEventListener("mousedown", handleGlobalClick);
+  }, []);
 
   // Modals
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -65,7 +83,17 @@ function MainApp() {
       }
       const storedPosts = localStorage.getItem("problemtrace_feed_posts");
       if (storedPosts) {
-        setPosts(JSON.parse(storedPosts));
+        const parsed = JSON.parse(storedPosts);
+        if (Array.isArray(parsed) && parsed.length >= mockPosts.length) {
+          setPosts(parsed);
+        } else {
+          const userCreated = Array.isArray(parsed) ? parsed.filter((p: any) => !p.id.startsWith("post-")) : [];
+          const merged = [...userCreated, ...mockPosts];
+          setPosts(merged);
+          localStorage.setItem("problemtrace_feed_posts", JSON.stringify(merged));
+        }
+      } else {
+        localStorage.setItem("problemtrace_feed_posts", JSON.stringify(mockPosts));
       }
     } catch (e) {
       console.warn("Could not read from localStorage", e);
@@ -158,10 +186,18 @@ function MainApp() {
     persistPosts(updated);
   };
 
+  const isFeedView = activeView === "home";
+
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex">
-      {/* Desktop Left Sidebar */}
-      <div className="hidden lg:block w-64 lg:w-72 shrink-0">
+      {/* Desktop Floating Left Sidebar Spacer (Expands on click & smoothly moves content) */}
+      <div
+        ref={sidebarContainerRef}
+        onClick={() => setIsSidebarExpanded(true)}
+        className={`hidden lg:block shrink-0 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          isSidebarExpanded ? "w-[264px]" : "w-20"
+        }`}
+      >
         <LeftSidebar
           activeView={activeView}
           setActiveView={(v) => {
@@ -170,11 +206,13 @@ function MainApp() {
           }}
           openCreateModal={() => setIsCreateOpen(true)}
           profile={profile}
+          isExpanded={isSidebarExpanded}
+          onToggleExpand={() => setIsSidebarExpanded((prev) => !prev)}
         />
       </div>
 
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 inset-x-0 z-40 bg-white border-b border-slate-200 px-4 h-14 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 inset-x-0 z-40 bg-white border-b border-slate-200 px-4 h-14 flex items-center justify-between shadow-2xs">
         <div
           onClick={() => setActiveView("home")}
           className="flex items-center gap-2 cursor-pointer"
@@ -213,7 +251,7 @@ function MainApp() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end">
-          <div className="bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto space-y-2">
+          <div className="bg-white rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto space-y-2 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                 Navigation
@@ -237,6 +275,7 @@ function MainApp() {
               { id: "messages", label: "Messages" },
               { id: "notifications", label: "Notifications" },
               { id: "profile", label: "My Profile" },
+              { id: "settings", label: "Settings" },
               { id: "admin", label: "Admin Console" },
             ].map((item) => (
               <button
@@ -259,9 +298,15 @@ function MainApp() {
         </div>
       )}
 
-      {/* Center Column + Optional Right Sidebar */}
-      <div className="flex-1 flex justify-center w-full min-w-0 pt-16 lg:pt-0">
-        <main className="w-full max-w-2xl 2xl:max-w-3xl px-4 sm:px-6 py-6 min-w-0">
+      {/* Main Content Area */}
+      <div className="flex-1 flex justify-center w-full min-w-0 pt-16 lg:pt-0 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
+        <main
+          className={`w-full px-4 sm:px-6 lg:px-8 py-6 min-w-0 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+            isFeedView
+              ? "max-w-xl xl:max-w-2xl 2xl:max-w-2xl"
+              : "max-w-6xl 2xl:max-w-7xl"
+          }`}
+        >
           {/* VIEW: HOME (Social Feed) */}
           {activeView === "home" && (
             <div className="w-full space-y-6">
@@ -451,12 +496,24 @@ function MainApp() {
             />
           )}
 
+          {/* VIEW: SETTINGS */}
+          {activeView === "settings" && (
+            <SettingsView
+              profile={profile}
+              onSaveProfile={handleSaveProfile}
+              onNavigateAction={(v) => {
+                setActiveView(v);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
+          )}
+
           {/* VIEW: ADMIN */}
           {activeView === "admin" && <AdminView />}
         </main>
 
-        {/* Desktop Right Sidebar (Only on Home and Explore views or persistent) */}
-        {(activeView === "home" || activeView === "explore" || activeView === "problems") && (
+        {/* Desktop Right Sidebar (Only on Home Feed view for authentic 3-column social experience) */}
+        {isFeedView && (
           <RightSidebar
             profile={profile}
             setActiveView={(v) => {
